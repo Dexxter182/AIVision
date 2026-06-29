@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVAT Adathalmaz Statisztika - Interaktív Infografika</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .metric-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    <!-- Chosen Palette: Vibrant Tech Blues & Energetic Accents (Deep Blue #1e3a8a, Vibrant Blue #3b82f6, Cyan #06b6d4, Amber #f59e0b, Rose #e11d48, Emerald #10b981, Purple #8b5cf6) -->
+    <!-- Application Structure Plan: The SPA is structured as a vertical scrolling infographic, organized into logical, thematic chapters. It starts with a high-impact 'Executive Summary' of core metrics to anchor the user. It then flows into 'Global Distributions' to show overall dataset composition. The 'Deep Dive' section provides an interactive look into vehicle detection environments, allowing users to filter by camera view. Finally, it explores 'Data Sources & Specialized Models' to highlight the origin of data and specific categorizations like OCR and ReID. This linear narrative with localized interactivity prevents information overload while ensuring all complex data from the report is easily digestible. -->
+    <!-- Visualization & Content Choices: 
+         1. Big Metrics -> Inform -> Big styled numbers -> Hover effects -> Immediate impact for KPIs.
+         2. Global Labels -> Compare -> Doughnut Chart -> Hover tooltips -> Clearly shows part-to-whole relationships (Chart.js).
+         3. Project Sizes -> Compare -> Horizontal Bar Chart -> Hover -> Easy visual ranking of dataset volumes (Chart.js).
+         4. Day/Night Views -> Compare -> Grouped Bar Chart -> Hover -> Directly compares day vs night across different camera angles (Chart.js).
+         5. Environmental Conditions -> Explore/Change -> Interactive Bar Chart with Select Dropdown -> Changes data based on view -> Prevents visual clutter while allowing deep exploration (Chart.js + JS).
+         6. Data Origins (Internal/External) -> Compare -> 100% Stacked Bar Chart -> Hover -> Perfect for comparing ratios across different projects (Chart.js).
+         7. OCR Sources & ReID -> Compare -> Doughnut/Pie Charts -> Hover -> Excellent for visualizing distinct categorical breakdowns (Chart.js).
+         NO SVG/Mermaid used.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="antialiased">
+
+    <header class="bg-slate-900 text-white py-16 px-4 md:px-8 border-b border-slate-800">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
+                VISION AI adathalmaz statisztika
+            </h1>
+            <p class="text-lg md:text-xl text-slate-400 max-w-3xl leading-relaxed">
+                A gépi látás (Computer Vision) modellek lelke a minőségi adat. Ez az interaktív jelentés a jármű-újrazonosítási, rendszám-felismerési és objektum-detektálási modell fejlesztéseinkből származó több százezer annotáció és képi adat részletes összetételét, megoszlását és forrásait mutatja be.
+            </p>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 md:px-8 py-12 space-y-20">
+
+        <section>
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-slate-800">
+                    Fő összesítés
+                </h2>
+                <p class="text-slate-600 mt-2 text-lg">A vizsgált integrált adathalmaz és az aktív modell fejlesztések legfontosabb sarokszámai (Executive Summary).</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="metric-card bg-white rounded-xl px-4 py-3 border-l-4 border-[#3b82f6] shadow-sm border border-slate-200 text-center">
+                    <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1 h-10 flex items-center justify-center">Összes kép / adat</div>
+                    <div class="text-4xl font-extrabold text-slate-800">317 390+</div>
+                    <div class="text-xs text-slate-400 mt-1">Integrált adathalmaz egyedei</div>
+                </div>
+                <div class="metric-card bg-white rounded-xl px-4 py-3 border-l-4 border-[#06b6d4] shadow-sm border border-slate-200 text-center">
+                    <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1 h-10 flex items-center justify-center">Összes annotáció</div>
+                    <div class="text-4xl font-extrabold text-slate-800">151 940</div>
+                    <div class="text-xs text-slate-400 mt-1">Kézzel jelölt bounding box</div>
+                </div>
+                <div class="metric-card bg-white rounded-xl px-4 py-3 border-l-4 border-[#f59e0b] shadow-sm border border-slate-200 text-center">
+                    <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1 h-10 flex items-center justify-center">ReID párosítás</div>
+                    <div class="text-4xl font-extrabold text-slate-800">237 864</div>
+                    <div class="text-xs text-slate-400 mt-1">Jármű-újrazonosítási pár</div>
+                </div>
+                <div class="metric-card bg-white rounded-xl px-4 py-3 border-l-4 border-[#10b981] shadow-sm border border-slate-200 text-center">
+                    <div class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-1 h-10 flex items-center justify-center">Modell fejlesztések</div>
+                    <div class="text-4xl font-extrabold text-slate-800">9 db</div>
+                    <div class="text-xs text-slate-400 mt-1">Párhuzamos fejlesztési ág</div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-slate-800">
+                    Globális kategóriák és modell fejlesztések
+                </h2>
+                <p class="text-slate-600 mt-2 text-lg">Hogyan oszlik meg a közel 152 ezer objektum a különböző járműkategóriák között, és mekkora az adatigénye az egyes modell fejlesztéseknek?</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <div class="bg-white rounded-xl p-8 shadow-sm border border-slate-200">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Címkeeloszlás (minden modell fejlesztés)</h3>
+                    <p class="text-sm text-slate-500 mb-6">A bounding boxok százalékos megoszlása a fő detektálandó objektumok között.</p>
+                    <div class="chart-container">
+                        <canvas id="globalLabelsChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-8 shadow-sm border border-slate-200">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Modell fejlesztések adatmennyisége</h3>
+                    <p class="text-sm text-slate-500 mb-6">Az egyes modellek tanításához felhasznált adatok és képek száma (db).</p>
+                    <div class="chart-container">
+                        <canvas id="projectSizesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-slate-900 text-white rounded-xl p-8 md:p-12 shadow-md relative overflow-hidden">
+            <div class="relative z-10">
+                <div class="mb-10">
+                    <h2 class="text-3xl font-bold">
+                        Részletes jármű detektálás (kameranézetek)
+                    </h2>
+                    <p class="text-slate-400 mt-3 text-lg max-w-4xl">A megbízható járműdetektáló modell alapja a változatos környezeti adatok biztosítása. Ez a szekció bemutatja, hogyan oszlanak meg a detektálási adatok a nappali/éjszakai viszonyok, a kameraszögek és az időjárási anomáliák függvényében.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div class="lg:col-span-5 bg-slate-800 rounded-xl p-6 border border-slate-700">
+                        <h3 class="text-xl font-semibold mb-4 text-white">Nappal vs. éjszaka</h3>
+                        <p class="text-sm text-slate-400 mb-6">Bounding box annotációk eloszlása napszakok és kameranézetek szerint.</p>
+                        <div class="chart-container">
+                            <canvas id="dayNightChart"></canvas>
+                        </div>
+                        <div class="flex flex-wrap items-center justify-center gap-6 mt-6 pt-4 border-t border-slate-700">
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 rounded bg-[#38bdf8] shadow-sm"></div>
+                                <span class="text-sm text-slate-200 font-medium">Nappali annotációk</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 rounded bg-[#a78bfa] shadow-sm"></div>
+                                <span class="text-sm text-slate-200 font-medium">Éjszakai annotációk</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-7 bg-white rounded-xl p-6 shadow-sm border border-slate-200 text-slate-800">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4 border-b border-slate-100 pb-4">
+                            <div>
+                                <h3 class="text-xl font-bold">Környezeti kihívások elemzése</h3>
+                                <p class="text-sm text-slate-500 mt-1">Válasszon kameranézetet a specifikus időjárási viszonyok megtekintéséhez.</p>
+                            </div>
+                            <select id="cameraViewSelect" class="bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded focus:ring-[#3b82f6] focus:border-[#3b82f6] block p-3 font-semibold outline-none shadow-sm cursor-pointer hover:bg-slate-100 transition-colors">
+                                <option value="overview">Oldalsó nézet (overview)</option>
+                                <option value="front">Első nézet (front)</option>
+                                <option value="rear">Hátsó nézet (rear)</option>
+                            </select>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="environmentChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-slate-800">
+                    Források, OCR és Re-ID
+                </h2>
+                <p class="text-slate-600 mt-2 text-lg">Mely adatok származnak belső labelezésből és melyek publikus adatbázisokból? Hogyan épül fel a Rendszám Karakterfelismerő (OCR) és a Járműkövető (Re-ID) motor?</p>
+            </div>
+
+            <div class="bg-white rounded-xl p-8 shadow-sm border border-slate-200 mb-10">
+                <h3 class="text-xl font-bold text-slate-800 mb-2">Belső vs. publikus adatforrások aránya</h3>
+                <p class="text-sm text-slate-500 mb-8">A Kerék, Ország és Rendszám detektálási adatbázisok saját (belső annotáció) és publikus adatforrásainak százalékos összetétele.</p>
+                <div class="chart-container" style="height: 250px;">
+                    <canvas id="dataOriginChart"></canvas>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div class="bg-white rounded-xl p-8 shadow-sm border border-slate-200">
+                    <div class="mb-2">
+                        <h3 class="text-xl font-bold text-slate-800">PlateOCR adatforrások</h3>
+                    </div>
+                    <p class="text-sm text-slate-500 mb-6">121 046 darabos karakterfelismerő adatbázis megoszlása. (Saját adatok vs. PlatesMania augmentált)</p>
+                    <div class="chart-container">
+                        <canvas id="ocrChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-8 shadow-sm border border-slate-200">
+                    <div class="mb-2">
+                        <h3 class="text-xl font-bold text-slate-800">ReID dataset párosítás</h3>
+                    </div>
+                    <p class="text-sm text-slate-500 mb-6">237 864 darab pozitív és negatív jármű-újrazonosítási képpár eloszlása kategóriák szerint.</p>
+                    <div class="chart-container">
+                        <canvas id="reidChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 text-center text-sm border-t border-slate-800 mt-12">
+        <p>Generálva a CVAT adathalmaz statisztika riport alapján • Interaktív adatvizualizáció</p>
+    </footer>
+
+    <script>
+        const wrapLabel = (label) => {
+            if (label.length <= 26) return label;
+            const words = label.split(' ');
+            const lines = [];
+            let currentLine = '';
+            for (const word of words) {
+                if ((currentLine + ' ' + word).trim().length > 26) {
+                    if (currentLine) lines.push(currentLine.trim());
+                    currentLine = word;
+                } else {
+                    currentLine += (currentLine === '' ? '' : ' ') + word;
+                }
+            }
+            if (currentLine) lines.push(currentLine.trim());
+            return lines;
+        };
+
+        const commonOptions = {
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    titleFont: { family: "'Poppins', sans-serif", size: 14, weight: 'bold' },
+                    bodyFont: { family: "'Poppins', sans-serif", size: 13 },
+                    padding: 12,
+                    cornerRadius: 8,
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            if (Array.isArray(label)) {
+                                return label.join(' ');
+                            } else {
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        const colors = {
+            deepBlue: '#1e3a8a',
+            vibrantBlue: '#3b82f6',
+            cyan: '#06b6d4',
+            amber: '#f59e0b',
+            rose: '#e11d48',
+            emerald: '#10b981',
+            purple: '#8b5cf6',
+            slate500: '#64748b'
+        };
+
+        Chart.defaults.font.family = "'Poppins', sans-serif";
+        Chart.defaults.color = '#64748b';
+
+        const rawData = {
+            globalLabels: {
+                labels: ['wheel (kerék)', 'vehicle (jármű)', 'trailer (pótkocsi)', 'plate (rendszám)', 'transported_vehicle (szállított)'].map(wrapLabel),
+                data: [80830, 33185, 24052, 11302, 2571]
+            },
+            projectSizes: {
+                labels: ['PlateOCR', 'CountryClassification', 'WheelDetection', 'TrailerDetection', 'TollCategorization', 'VehicleTracking', 'VehicleDetection', 'VehicleCategorization', 'LicensePlateDetection'].map(wrapLabel),
+                data: [121046, 56154, 28445, 24860, 22742, 22023, 19397, 12967, 9756]
+            },
+            dayNight: {
+                labels: ['Overview (oldalsó)', 'Front (első)', 'Rear (hátsó)'].map(wrapLabel),
+                day: [10158, 4358, 7666],
+                night: [7759, 4434, 4380]
+            },
+            env: {
+                overview: {
+                    labels: ['Nappal, tiszta idő', 'Nappal, eső', 'Nappal, hó', 'Nappal, köd', 'Nappal, forgalom', 'Nappal, motor', 'Éjszaka, tiszta idő', 'Éjszaka, eső', 'Éjszaka, hó', 'Éjszaka, forgalom', 'Traileres jármű'].map(wrapLabel),
+                    data: [3795, 1919, 1078, 682, 1129, 406, 2623, 2140, 939, 1912, 1294]
+                },
+                front: {
+                    labels: ['Nappal, tiszta idő', 'Nappal, eső', 'Nappal, forgalom', 'Nappal, hó', 'Nappal, köd', 'Nappal, motor', 'Éjszaka, tiszta idő', 'Éjszaka, eső', 'Éjszaka, hó', 'Éjszaka, forgalom'].map(wrapLabel),
+                    data: [1321, 1362, 888, 380, 229, 178, 1459, 1393, 803, 779]
+                },
+                rear: {
+                    labels: ['Nappal, tiszta idő', 'Nappal, eső', 'Nappal, köd', 'Nappal, forgalom', 'Nappal, hó', 'Nappal, motor', 'Éjszaka, tiszta idő', 'Éjszaka, eső', 'Éjszaka, hó', 'Traileres jármű'].map(wrapLabel),
+                    data: [2955, 2069, 638, 1066, 381, 179, 2132, 1760, 362, 504]
+                }
+            },
+            origins: {
+                labels: ['WheelDetection', 'CountryClass', 'LicensePlate'].map(wrapLabel),
+                internal: [17, 29, 9],
+                external: [83, 71, 91]
+            },
+            ocr: {
+                labels: ['Saját adatokból labelezés', 'PlatesMania magyar (Aug)', 'PlatesMania EU (Aug)'].map(wrapLabel),
+                data: [51597, 40072, 29377]
+            },
+            reid: {
+                labels: ['General (általános)', 'Rare (ritka)', 'Trailer (pótkocsik)'].map(wrapLabel),
+                data: [219983, 9428, 8453]
+            }
+        };
+
+        new Chart(document.getElementById('globalLabelsChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: rawData.globalLabels.labels,
+                datasets: [{
+                    data: rawData.globalLabels.data,
+                    backgroundColor: [colors.vibrantBlue, colors.cyan, colors.amber, colors.rose, colors.purple],
+                    borderWidth: 3,
+                    borderColor: '#ffffff',
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                ...commonOptions,
+                cutout: '60%',
+                plugins: { ...commonOptions.plugins, legend: { position: 'right', labels: { font: { family: "'Poppins', sans-serif" } } } }
+            }
+        });
+
+        new Chart(document.getElementById('projectSizesChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: rawData.projectSizes.labels,
+                datasets: [{
+                    label: 'Adatok száma (db)',
+                    data: rawData.projectSizes.data,
+                    backgroundColor: colors.deepBlue,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                ...commonOptions,
+                indexAxis: 'y',
+                plugins: { ...commonOptions.plugins, legend: { display: false } },
+                scales: {
+                    x: { grid: { color: '#f1f5f9' }, beginAtZero: true },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('dayNightChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: rawData.dayNight.labels,
+                datasets: [
+                    { label: 'Nappali annotációk', data: rawData.dayNight.day, backgroundColor: '#38bdf8', borderRadius: 4 },
+                    { label: 'Éjszakai annotációk', data: rawData.dayNight.night, backgroundColor: '#a78bfa', borderRadius: 4 }
+                ]
+            },
+            options: {
+                ...commonOptions,
+                plugins: { 
+                    ...commonOptions.plugins, 
+                    legend: { 
+                        display: false 
+                    } 
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#e2e8f0' } },
+                    y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#e2e8f0' } }
+                }
+            }
+        });
+
+        const envCtx = document.getElementById('environmentChart').getContext('2d');
+        let envChartInstance = new Chart(envCtx, {
+            type: 'bar',
+            data: {
+                labels: rawData.env.overview.labels,
+                datasets: [{
+                    label: 'Annotációk száma',
+                    data: rawData.env.overview.data,
+                    backgroundColor: colors.cyan,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                ...commonOptions,
+                plugins: { ...commonOptions.plugins, legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { maxRotation: 45, autoSkip: false } },
+                    y: { grid: { color: '#f1f5f9' }, beginAtZero: true }
+                }
+            }
+        });
+
+        document.getElementById('cameraViewSelect').addEventListener('change', function(e) {
+            const selectedView = e.target.value;
+            envChartInstance.data.labels = rawData.env[selectedView].labels;
+            envChartInstance.data.datasets[0].data = rawData.env[selectedView].data;
+            envChartInstance.update();
+        });
+
+        new Chart(document.getElementById('dataOriginChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: rawData.origins.labels,
+                datasets: [
+                    { label: 'Saját annotált adat (%)', data: rawData.origins.internal, backgroundColor: colors.emerald },
+                    { label: 'Publikus adatforrás (%)', data: rawData.origins.external, backgroundColor: colors.slate500 }
+                ]
+            },
+            options: {
+                ...commonOptions,
+                indexAxis: 'y',
+                plugins: { ...commonOptions.plugins, legend: { position: 'bottom' } },
+                scales: {
+                    x: { stacked: true, max: 100, grid: { color: '#f1f5f9' } },
+                    y: { stacked: true, grid: { display: false } }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('ocrChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: rawData.ocr.labels,
+                datasets: [{
+                    data: rawData.ocr.data,
+                    backgroundColor: [colors.rose, colors.amber, colors.deepBlue],
+                    borderWidth: 3,
+                    borderColor: '#ffffff',
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                ...commonOptions,
+                cutout: '65%',
+                plugins: { ...commonOptions.plugins, legend: { position: 'bottom' } }
+            }
+        });
+
+        new Chart(document.getElementById('reidChart').getContext('2d'), {
+            type: 'pie',
+            data: {
+                labels: rawData.reid.labels,
+                datasets: [{
+                    data: rawData.reid.data,
+                    backgroundColor: [colors.vibrantBlue, colors.cyan, colors.purple],
+                    borderWidth: 3,
+                    borderColor: '#ffffff',
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                ...commonOptions,
+                plugins: { ...commonOptions.plugins, legend: { position: 'bottom' } }
+            }
+        });
+
+    </script>
+</body>
+</html>
